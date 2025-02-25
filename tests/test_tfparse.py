@@ -274,9 +274,6 @@ def test_parse_dynamic_content(tmp_path):
         },
         "count": 2,
         "id": ANY,
-        "prop1": "one",
-        "prop2": "two",
-        "prop3": "end",
         "loop_one": [
             {
                 "__tfmeta": {"filename": "main.tf", "line_end": 11, "line_start": 9},
@@ -327,6 +324,9 @@ def test_parse_dynamic_content(tmp_path):
                 "other": 3,
             },
         ],
+        "prop1": "one",
+        "prop2": "two",
+        "prop3": "end",
         "static": [
             {
                 "__tfmeta": {"filename": "main.tf", "line_end": 16, "line_start": 14},
@@ -550,3 +550,17 @@ def test_funcs(tmp_path):
         "modules_list": ["x", "y", "z"],
     }
     assert len(actual["check_fileset_abs_path"]) > 0
+
+
+def test_workspace(tmp_path):
+    mod_path = init_module("workspace", tmp_path)
+
+    parsed = load_from_path(mod_path)
+    value, workspace = parsed["output"]
+    assert workspace["value"] == "default"
+    assert value["value"] == "DEFAULT"
+
+    parsed = load_from_path(mod_path, workspace_name="other")
+    value, workspace = parsed["output"]
+    assert workspace["value"] == "other"
+    assert value["value"] == "OTHER"
